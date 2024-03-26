@@ -1,5 +1,9 @@
-// import { Routes } from '../routes.enum';
+import { RoutePath } from '../types/path.type';
 
-// export const redirectTo = (path: Routes): void => {
-//     window.location.hash = path;
-// };
+export const redirectTo = (path: RoutePath): void => {
+    const currentHash = window.location.hash.slice(1);
+
+    if(path === currentHash) return;
+    
+    window.location.hash = path;
+};

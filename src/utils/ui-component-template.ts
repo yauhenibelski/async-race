@@ -1,8 +1,7 @@
 import createElement from '@utils/create-element';
 
-class Component extends HTMLElement {
+abstract class Component extends HTMLElement {
     protected contentWrap: HTMLElement;
-    protected customTagName: string | unknown;
     protected elements: { [key: string]: HTMLElement } = {};
 
     constructor(style: { [key: string]: string }) {
@@ -15,28 +14,28 @@ class Component extends HTMLElement {
         this.append(this.contentWrap);
     }
 
-    childrenElements(): { [key: string]: HTMLElement } {
+    protected childrenElements(): { [key: string]: HTMLElement } {
         // childrenElements
         return <{ [key: string]: HTMLElement }>{};
     }
 
-    appendElements(): void {
+    protected appendElements(): void {
         // appendElements
     }
 
-    createComponent(): void {
+    protected createComponent(): void {
         // create component
     }
 
-    connectedCallback(): void {
+    protected connectedCallback(): void {
         // element added to page
     }
 
-    disconnectedCallback(): void {
+    protected disconnectedCallback(): void {
         //  element removed from page
     }
 
-    adoptedCallback(): void {
+    protected adoptedCallback(): void {
         // element moved to new page
     }
 
@@ -44,11 +43,11 @@ class Component extends HTMLElement {
     // Attribute ${name} has changed.
     // }
 
-    getElement(): HTMLElement {
+    public getElement(): HTMLElement {
         return this;
     }
 
-    render(): void {
+    public render(): void {
         this.contentWrap.innerHTML = '';
         this.elements = this.childrenElements();
         this.createComponent();

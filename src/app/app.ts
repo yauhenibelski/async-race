@@ -1,13 +1,16 @@
-// import createElement from '@utils/create-element';
-// import { router } from '../router/router';
+import createElement from '@utils/create-element';
+import { router } from '../router/router';
+import Header from './core/header/header';
 
 class App {
     root = document.body;
 
     run() {
-        // const routOutput = createElement({ tag: 'div', style: 'router' });
-        document.body.append('work');
-        // router();
+        const routOutput = createElement({ tag: 'div', style: 'router' });
+
+        this.root.append(new Header().getElement(), routOutput);
+
+        router();
     }
 }
 

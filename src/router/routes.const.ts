@@ -1,1 +1,4 @@
-export const Routes = {} as const;
+export const Routes = {
+    garage: 'garage',
+    winners: 'winners',
+} as const;
