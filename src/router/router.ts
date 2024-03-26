@@ -8,13 +8,12 @@ export const router = (): void => {
 
     if (!hash) {
         renderPage(startPage);
-        redirectTo(startPage)
+        redirectTo(startPage);
     }
 
-    if(hash) {
-        renderPage(hash)
+    if (hash) {
+        renderPage(hash);
     }
-
 
     window.onhashchange = () => {
         const hash = window.location.hash.slice(1);

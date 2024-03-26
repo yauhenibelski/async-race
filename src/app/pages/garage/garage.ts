@@ -7,11 +7,11 @@ import RaceList from './race-list/race-list';
 @CustomSelector('Garage-page')
 class GaragePage extends Component {
     protected elements = this.childrenElements();
-    
+
     constructor() {
         super(style);
 
-        this.createComponent()
+        this.createComponent();
     }
 
     protected createComponent(): void {
@@ -26,7 +26,6 @@ class GaragePage extends Component {
     }
 
     protected appendElements(): void {
-      
         this.contentWrap.append(...Object.values(this.elements));
     }
 }

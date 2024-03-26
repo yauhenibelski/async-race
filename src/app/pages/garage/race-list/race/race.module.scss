@@ -9,38 +9,38 @@
     margin-top: 10px;
     border-bottom: solid 2px white;
     border-top: solid 2px white;
-  
+
     &::before {
-      content: "";
-      position: absolute;
-      right: 0px;
-      height: 100%;
-      width: 24px;
-      background-size: cover;
-      background-image: url(/assets/img/flag.svg);
+        content: '';
+        position: absolute;
+        right: 0px;
+        height: 100%;
+        width: 24px;
+        background-size: cover;
+        background-image: url(/assets/img/flag.svg);
     }
-  
+
     &::after {
-      content: '';
-      position: absolute;
-      height: 1px;
-      border-bottom: dashed 1px white;
-      top: 50%;
-      width: 100%;
-      z-index: -1;
+        content: '';
+        position: absolute;
+        height: 1px;
+        border-bottom: dashed 1px white;
+        top: 50%;
+        width: 100%;
+        z-index: -1;
     }
 }
 
 .control-wrap {
     position: relative;
     display: flex;
-    
+
     p {
-      margin: 0;
-      margin-left: 10px;
-      color: white;
+        margin: 0;
+        margin-left: 10px;
+        color: white;
     }
     button {
-      margin-right: 3px;
+        margin-right: 3px;
     }
 }

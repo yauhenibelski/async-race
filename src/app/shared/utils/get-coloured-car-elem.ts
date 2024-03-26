@@ -1,9 +1,11 @@
-import createElement from "@utils/create-element";
+import createElement from '@utils/create-element';
 
 export function getColorCar(color: string) {
-    const div = createElement({tag: 'div', style: 'car'});
+    const div = createElement({ tag: 'div', style: 'car' });
 
-    div.insertAdjacentHTML('beforeend', `<svg version="1.0"
+    div.insertAdjacentHTML(
+        'beforeend',
+        `<svg version="1.0"
     viewBox="0 0 1280.000000 640.000000" preserveAspectRatio="xMidYMid meet">
     <metadata>
       Created by potrace 1.15, written by Peter Selinger 2001-2017
@@ -95,7 +97,7 @@ export function getColorCar(color: string) {
       <path d="M11035 1801 c-7 -12 -23 -144 -29 -243 -4 -77 -4 -78 19 -78 45 0
   130 22 193 51 l64 29 -19 23 c-65 82 -198 227 -209 227 -7 0 -15 -4 -19 -9z" />
     </g>
-  </svg>`);
+  </svg>`,
+    );
     return div;
-  }
-  
+}
