@@ -2,6 +2,7 @@ import CustomSelector from '@utils/set-selector-name';
 import Component from '@utils/ui-component-template';
 import style from './garage.module.scss';
 import ControlBlok from './control-block/control-block';
+import RaceList from './race-list/race-list';
 
 @CustomSelector('Garage-page')
 class GaragePage extends Component {
@@ -20,6 +21,7 @@ class GaragePage extends Component {
     protected childrenElements() {
         return {
             controlBlock: new ControlBlok().getElement(),
+            riceList: new RaceList().getElement(),
         };
     }
 
