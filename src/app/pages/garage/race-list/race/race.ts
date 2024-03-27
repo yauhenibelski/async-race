@@ -18,9 +18,14 @@ class Race extends Component {
     }
 
     protected createComponent(): void {
-        const { updateCarBtn } = this.elements;
+        const { updateCarBtn, removeCarBtn } = this.elements;
 
         updateCarBtn.onclick = () => selectedCar$.publish(this);
+
+        removeCarBtn.onclick = () => {
+            removeCarBtn.disabled = true;
+            ApiService.removeCar(this.car.id);
+        };
 
         this.appendElements();
     }

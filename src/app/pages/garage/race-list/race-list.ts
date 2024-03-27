@@ -37,11 +37,11 @@ class RaceList extends Component {
     protected appendElements(): void {
         const cars = cars$.value;
 
-        if (cars) {
+        if (cars?.length) {
             this.contentWrap.append(...cars.map(car => car.getElement()));
         }
 
-        if (!cars) {
+        if (!cars?.length) {
             this.contentWrap.append(...Object.values(this.elements));
         }
     }
