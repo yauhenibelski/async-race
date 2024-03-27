@@ -1,6 +1,9 @@
 import CustomSelector from '@utils/set-selector-name';
 import Component from '@utils/ui-component-template';
 import createElement from '@utils/create-element';
+import { selectedCar$ } from '@shared/observables';
+import type Race from '@pages/garage/race-list/race/race';
+import { ApiService } from '@shared/api-service';
 import style from './create-update-car-block.module.scss';
 
 @CustomSelector('Create-update-car')
@@ -15,12 +18,85 @@ class CreateUpdateCarBlock extends Component {
     protected createComponent(): void {
         const { inputColor, inputText, confirmBtn } = this.elements;
 
+        confirmBtn.disabled = !inputText.value;
         inputText.placeholder = 'Create car';
         inputColor.type = 'color';
 
-        confirmBtn.onclick = () => console.log('confirm');
+        this.addInputTextEvent();
+        this.addConfirmBtnEvent();
 
         this.appendElements();
+    }
+
+    private selectedCarSubscribe = (race: Race | null): void => {
+        const { inputColor, inputText, confirmBtn } = this.elements;
+
+        if (race) {
+            const { name, color } = race.car;
+
+            confirmBtn.innerText = 'Update car';
+            inputText.value = name;
+            inputColor.value = color;
+            confirmBtn.disabled = false;
+
+            inputText.focus();
+        }
+
+        if (!race) {
+            confirmBtn.innerText = 'Create car';
+            // inputText.value = '';
+            // inputColor.value = '#7A7A7A';
+        }
+    };
+
+    private addInputTextEvent() {
+        const { inputText, confirmBtn } = this.elements;
+
+        inputText.oninput = () => {
+            if (!inputText.value && !confirmBtn.disabled) {
+                confirmBtn.disabled = true;
+                return;
+            }
+
+            if (inputText.value && confirmBtn.disabled) {
+                confirmBtn.disabled = false;
+            }
+        };
+    }
+
+    private addConfirmBtnEvent() {
+        const { inputColor, inputText, confirmBtn } = this.elements;
+
+        confirmBtn.onclick = () => {
+            const selectedCar = selectedCar$.value;
+
+            if (selectedCar) {
+                selectedCar.updateCar({
+                    name: inputText.value,
+                    color: inputColor.value,
+                });
+
+                selectedCar$.publish(null);
+            }
+
+            if (!selectedCar) {
+                ApiService.createCar({
+                    name: inputText.value,
+                    color: inputColor.value,
+                });
+            }
+
+            confirmBtn.disabled = true;
+            inputText.value = '';
+        };
+    }
+
+    protected connectedCallback(): void {
+        selectedCar$.subscribe(this.selectedCarSubscribe);
+    }
+
+    protected disconnectedCallback(): void {
+        selectedCar$.unsubscribe(this.selectedCarSubscribe);
     }
 
     protected childrenElements() {

@@ -1,4 +1,4 @@
-export interface GaragePageOptions {
+export interface PageOptions {
     totalCars: number;
     page: number;
 }

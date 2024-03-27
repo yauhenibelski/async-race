@@ -26,18 +26,11 @@ class Header extends Component {
         return {
             garagePageLink: createElement({ tag: 'button', text: 'Garage' }),
             winnerPageLink: createElement({ tag: 'button', text: 'Winner' }),
-            textWrap: createElement({ tag: 'div', style: style['text-wrap'] }),
-            namePage: createElement({ tag: 'h2', text: 'Garage(4)' }),
-            numPage: createElement({ tag: 'h3', text: 'Page #1' }),
         };
     }
 
     protected appendElements(): void {
-        const { garagePageLink, winnerPageLink, textWrap, namePage, numPage } = this.elements;
-
-        textWrap.append(namePage, numPage);
-
-        this.contentWrap.append(garagePageLink, winnerPageLink, textWrap);
+        this.contentWrap.append(...Object.values(this.elements));
     }
 }
 

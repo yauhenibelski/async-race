@@ -1,7 +1,8 @@
 import CustomSelector from '@utils/set-selector-name';
 import Component from '@utils/ui-component-template';
+import createElement from '@utils/create-element';
+import { cars$ } from '@shared/observables';
 import style from './race-list.module.scss';
-import Race from './race/race';
 
 @CustomSelector('Race-list')
 class RaceList extends Component {
@@ -9,22 +10,40 @@ class RaceList extends Component {
 
     constructor() {
         super(style);
-
-        this.createComponent();
     }
 
     protected createComponent(): void {
         this.appendElements();
     }
 
+    carSubscribe = () => {
+        this.render();
+    };
+
+    protected connectedCallback(): void {
+        cars$.subscribe(this.carSubscribe);
+    }
+
+    protected disconnectedCallback(): void {
+        cars$.unsubscribe(this.carSubscribe);
+    }
+
     protected childrenElements() {
         return {
-            race: new Race().getElement(),
+            note: createElement({ tag: 'h2', text: 'No cars in the garage' }),
         };
     }
 
     protected appendElements(): void {
-        this.contentWrap.append(...Object.values(this.elements));
+        const cars = cars$.value;
+
+        if (cars) {
+            this.contentWrap.append(...cars.map(car => car.getElement()));
+        }
+
+        if (!cars) {
+            this.contentWrap.append(...Object.values(this.elements));
+        }
     }
 }
 

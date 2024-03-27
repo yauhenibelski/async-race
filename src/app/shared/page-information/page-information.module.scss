@@ -1,0 +1,14 @@
+.host {
+    display: block;
+}
+.content-wrap {
+    display: block;
+}
+.text-wrap {
+    display: flex;
+    align-items: end;
+
+    h2 {
+        margin-right: 10px;
+    }
+}

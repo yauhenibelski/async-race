@@ -1,5 +1,6 @@
 import { Car } from '@interfaces/car.interface';
-import { cars$, garagePageOptions$, selectedCar$ } from '@shared/observables';
+import { cars$, garagePageOptions$ } from '@shared/observables';
+import { getArrRaceCars } from './utils/get-arr-race-cars';
 
 interface CallbackOption {
     fulfillCallback?: () => void;
@@ -11,7 +12,9 @@ export class ApiService {
     static garagePageLimit = 7;
     static winnersPageLimit = 10;
 
-    static readonly getCars = (page: number): void => {
+    static readonly getCars = (pageNum?: number): void => {
+        const page = pageNum || 1;
+
         fetch(`${this.path}garage/?_page=${page}&_limit=${this.garagePageLimit}`)
             .then(response => {
                 if (response.status !== 200) {
@@ -24,7 +27,7 @@ export class ApiService {
                 return response.json();
             })
             .then((cars: Car[]) => {
-                cars$.publish(cars);
+                cars$.publish(getArrRaceCars(cars));
             })
             .catch(err => {
                 cars$.publish(null);
@@ -34,24 +37,24 @@ export class ApiService {
             });
     };
 
-    static readonly getCar = (id: number): void => {
-        fetch(`${this.path}garage/${id}`)
-            .then(response => {
-                if (response.status !== 200) {
-                    throw new Error(`getCar response status ${response.status}`);
-                }
+    // static readonly getCar = (id: number): void => {
+    //     fetch(`${this.path}garage/${id}`)
+    //         .then(response => {
+    //             if (response.status !== 200) {
+    //                 throw new Error(`getCar response status ${response.status}`);
+    //             }
 
-                return response.json();
-            })
-            .then((car: Car) => {
-                selectedCar$.publish(car);
-            })
-            .catch(err => {
-                selectedCar$.publish(null);
+    //             return response.json();
+    //         })
+    //         .then((car: Car) => {
+    //             selectedCar$.publish(car);
+    //         })
+    //         .catch(err => {
+    //             selectedCar$.publish(null);
 
-                console.log(err);
-            });
-    };
+    //             console.log(err);
+    //         });
+    // };
 
     static readonly createCar = (car: Omit<Car, 'id'>, option?: CallbackOption): void => {
         fetch(`${this.path}garage`, {
