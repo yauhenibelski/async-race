@@ -2,7 +2,7 @@ import CustomSelector from '@utils/set-selector-name';
 import Component from '@utils/ui-component-template';
 import { getColorCar } from '@shared/utils/get-coloured-car-elem';
 import createElement from '@utils/create-element';
-import { selectedCar$ } from '@shared/observables';
+import { cars$, garagePageOptions$, selectedCar$ } from '@shared/observables';
 import { Car } from '@interfaces/car.interface';
 import { ApiService } from '@shared/api-service';
 import style from './race.module.scss';
@@ -24,7 +24,20 @@ class Race extends Component {
 
         removeCarBtn.onclick = () => {
             removeCarBtn.disabled = true;
-            ApiService.removeCar(this.car.id);
+
+            ApiService.removeCar(this.car.id, {
+                fulfillCallback: () => {
+                    const emptyPage = !(Number(cars$.value?.length) - 1);
+
+                    if (emptyPage) {
+                        const { totalCars, page } = garagePageOptions$.value;
+                        garagePageOptions$.publish({
+                            totalCars,
+                            page: page - 1,
+                        });
+                    }
+                },
+            });
         };
 
         this.appendElements();

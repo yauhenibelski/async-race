@@ -4,6 +4,7 @@ import { ApiService } from '@shared/api-service';
 import PageInfo from '@shared/page-information/page-information';
 import { garagePageOptions$ } from '@shared/observables';
 import { PageOptions } from '@interfaces/garage-page-options.interface';
+import Pagination from '@shared/pagination/pagination';
 import RaceList from './race-list/race-list';
 import ControlBlok from './control-block/control-block';
 import style from './garage.module.scss';
@@ -41,6 +42,7 @@ class GaragePage extends Component {
             pageInfo: this.pageInfo.getElement(),
             controlBlock: new ControlBlok().getElement(),
             riceList: new RaceList().getElement(),
+            pagination: new Pagination(garagePageOptions$, ApiService.garagePageLimit).getElement(),
         };
     }
 

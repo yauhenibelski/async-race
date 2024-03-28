@@ -29,7 +29,6 @@ class PageInfo extends Component {
     protected childrenElements() {
         const { page, totalCars } = this.pageOptions;
         return {
-            textWrap: createElement({ tag: 'div', style: style['text-wrap'] }),
             namePage: createElement({ tag: 'h2', text: `${this.pageName} (${totalCars})` }),
             numPage: createElement({ tag: 'h3', text: `Page #${page}` }),
         };

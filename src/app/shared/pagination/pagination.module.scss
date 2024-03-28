@@ -1,0 +1,21 @@
+.host {
+    display: block;
+}
+.content-wrap {
+    display: block;
+    margin-top: 20px;
+
+    .active {
+        background-color: rgb(243, 243, 243);
+    }
+
+    button {
+        min-width: 35px;
+        margin: 4px 4px 0px 0px;
+        background-color: rgb(150 150 150);
+
+        &:disabled {
+            background-color: rgb(199, 199, 199);
+        }
+    }
+}
