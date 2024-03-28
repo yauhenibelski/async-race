@@ -37,48 +37,48 @@ export class ApiService {
             });
     };
 
-    // static readonly getCar = (id: number): void => {
-    //     fetch(`${this.path}garage/${id}`)
-    //         .then(response => {
-    //             if (response.status !== 200) {
-    //                 throw new Error(`getCar response status ${response.status}`);
-    //             }
+    static readonly createCar = (car: Omit<Car, 'id'> | Array<Omit<Car, 'id'>>, option?: CallbackOption): void => {
+        const cars = Array.isArray(car) ? car : [car];
+        const garageUrl = `${this.path}garage`;
 
-    //             return response.json();
-    //         })
-    //         .then((car: Car) => {
-    //             selectedCar$.publish(car);
-    //         })
-    //         .catch(err => {
-    //             selectedCar$.publish(null);
-
-    //             console.log(err);
-    //         });
-    // };
-
-    static readonly createCar = (car: Omit<Car, 'id'>, option?: CallbackOption): void => {
-        fetch(`${this.path}garage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(car),
-        })
-            .then(response => {
-                if (response.status === 201 && option && option.fulfillCallback) {
-                    option.fulfillCallback();
-                }
-
-                if (response.status !== 201) {
-                    throw new Error(`createCar response status ${response.status}`);
-                }
-
-                this.getCars(garagePageOptions$.value.page);
+        cars.map(car =>
+            fetch(garageUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(car),
             })
-            .catch(err => {
-                if (option && option.rejectCallback) {
-                    option.rejectCallback();
-                }
+                .then(response => {
+                    if (response.status === 201 && option && option.fulfillCallback) {
+                        option.fulfillCallback();
+                    }
 
-                console.log(err);
+                    if (response.status !== 201) {
+                        throw new Error(`createCar response status ${response.status}`);
+                    }
+                })
+                .catch(err => {
+                    if (option && option.rejectCallback) {
+                        option.rejectCallback();
+                    }
+
+                    console.log(err);
+                }),
+        );
+
+        Promise.all(cars)
+            .then(() => fetch(garageUrl))
+            .then(response => response.body?.getReader())
+            .then(reader => {
+                while (true) {
+                    let load = true;
+
+                    reader?.read().then(({ done }) => {
+                        load = done;
+                    });
+
+                    if (load) break;
+                }
+                this.getCars(garagePageOptions$.value.page);
             });
     };
 
