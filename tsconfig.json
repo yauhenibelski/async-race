@@ -9,7 +9,8 @@
             "@style/*": ["./src/style/*"],
             "@interfaces/*": ["./src/app/interfaces/*"],
             "@assets/*": ["./src/assets/*"],
-            "@shared/*": ["./src/app/shared/*"]
+            "@shared/*": ["./src/app/shared/*"],
+            "@type-guards/*": ["./src/type-guards/*"]
         },
 
         "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,

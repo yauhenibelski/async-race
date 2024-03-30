@@ -53,6 +53,7 @@ module.exports = ({ develop }) => ({
             '@interfaces': path.resolve(__dirname, './src/app/interfaces/'),      
             '@assets': path.resolve(__dirname, './src/assets/'),
             '@shared': path.resolve(__dirname, './src/app/shared/'),
+            "@type-guards": path.resolve(__dirname, './src/app/type-guards/'),
           },
     },
     plugins: [

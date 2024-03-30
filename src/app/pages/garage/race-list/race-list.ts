@@ -16,7 +16,7 @@ class RaceList extends Component {
         this.appendElements();
     }
 
-    carSubscribe = () => {
+    private carSubscribe = () => {
         this.render();
     };
 

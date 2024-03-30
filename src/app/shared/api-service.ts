@@ -3,7 +3,7 @@ import { cars$, garagePageOptions$ } from '@shared/observables';
 import { getArrRaceCars } from './utils/get-arr-race-cars';
 
 interface CallbackOption {
-    fulfillCallback?: () => void;
+    fulfillCallback?: (data?: unknown) => void;
     rejectCallback?: () => void;
 }
 
@@ -17,7 +17,7 @@ export class ApiService {
 
         fetch(`${this.path}garage/?_page=${page}&_limit=${this.garagePageLimit}`)
             .then(response => {
-                if (response.status !== 200) {
+                if (!response.ok) {
                     throw new Error(`getCars response status ${response.status}`);
                 }
 
@@ -48,11 +48,11 @@ export class ApiService {
                 body: JSON.stringify(car),
             })
                 .then(response => {
-                    if (response.status === 201 && option && option.fulfillCallback) {
+                    if (response.ok && option && option.fulfillCallback) {
                         option.fulfillCallback();
                     }
 
-                    if (response.status !== 201) {
+                    if (!response.ok) {
                         throw new Error(`createCar response status ${response.status}`);
                     }
                 })
@@ -85,11 +85,11 @@ export class ApiService {
     static readonly removeCar = (id: number, option?: CallbackOption) => {
         fetch(`${this.path}garage/${id}`, { method: 'DELETE' })
             .then(response => {
-                if (response.status === 200 && option && option.fulfillCallback) {
+                if (response.ok && option && option.fulfillCallback) {
                     option.fulfillCallback();
                 }
 
-                if (response.status !== 200) {
+                if (!response.ok) {
                     throw new Error(`removeCar response status ${response.status}`);
                 }
 
@@ -111,11 +111,11 @@ export class ApiService {
             body: JSON.stringify(car),
         })
             .then(response => {
-                if (response.status === 200 && option && option.fulfillCallback) {
+                if (response.ok && option && option.fulfillCallback) {
                     option.fulfillCallback();
                 }
 
-                if (response.status !== 200) {
+                if (!response.ok) {
                     throw new Error(`updateCar response status ${response.status}`);
                 }
             })
@@ -132,14 +132,16 @@ export class ApiService {
         id: number,
         status: 'started' | 'stopped',
         option?: CallbackOption,
-    ): void => {
+    ): Promise<void> =>
         fetch(`${this.path}engine/?id=${id}&status=${status}`, { method: 'PATCH' })
             .then(response => {
-                if (response.status === 200 && option && option.fulfillCallback) {
-                    option.fulfillCallback();
+                if (response.ok && option && option.fulfillCallback) {
+                    response.json().then(params => {
+                        option.fulfillCallback!(params);
+                    });
                 }
 
-                if (response.status !== 200) {
+                if (!response.ok) {
                     throw new Error(`startedStoppedEngine response status ${response.status}`);
                 }
             })
@@ -150,25 +152,26 @@ export class ApiService {
 
                 console.log(err);
             });
-    };
 
-    static readonly driveMode = (id: number, option?: CallbackOption): void => {
-        fetch(`${this.path}engine/?id=${id}&status=drive`, { method: 'PATCH' })
+    static readonly driveMode = (id: number, signal: AbortSignal, option?: CallbackOption): Promise<void> =>
+        fetch(`${this.path}engine/?id=${id}&status=drive`, {
+            method: 'PATCH',
+            signal,
+        })
             .then(response => {
-                if (response.status === 200 && option && option.fulfillCallback) {
-                    option.fulfillCallback();
+                if (response.ok && option && option.fulfillCallback) {
+                    response.json().then(params => {
+                        option.fulfillCallback!(params);
+                    });
                 }
 
-                if (response.status !== 200) {
+                if (!response.ok) {
                     throw new Error(`driveMode response status ${response.status}`);
                 }
             })
-            .catch(err => {
+            .catch(() => {
                 if (option && option.rejectCallback) {
                     option.rejectCallback();
                 }
-
-                console.log(err);
             });
-    };
 }
