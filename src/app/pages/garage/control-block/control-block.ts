@@ -2,11 +2,13 @@ import CustomSelector from '@utils/set-selector-name';
 import Component from '@utils/ui-component-template';
 import createElement from '@utils/create-element';
 import { generateRandomCars } from '@shared/utils/generate-random-cars';
-import { activeRace$, cars$, isRaceStart$ } from '@shared/observables';
+import { activeRace$, cars$, finishList$, isRaceStart$ } from '@shared/observables';
 import { delay } from '@utils/delay';
+import { disabledBtns } from '@shared/utils/disabled-btns';
 import style from './control-block.module.scss';
 import CreateUpdateCarBlock from './create-update-car-block /create-update-car-block ';
 import Race from '../race-list/race/race';
+import GaragePage from '../garage';
 
 @CustomSelector('Control-block')
 class ControlBlok extends Component {
@@ -21,8 +23,11 @@ class ControlBlok extends Component {
     protected createComponent(): void {
         const { generateCarsBtn, raceResetBtn } = this.elements;
 
-        raceResetBtn.onclick = () => this.raceReset();
-        generateCarsBtn.onclick = () => generateRandomCars(100);
+        raceResetBtn.onclick = () => this.raceStartReset();
+        generateCarsBtn.onclick = () => {
+            disabledBtns(true);
+            generateRandomCars(100);
+        };
 
         this.appendElements();
     }
@@ -51,6 +56,7 @@ class ControlBlok extends Component {
 
         delay(() => Boolean(!activeRace$.value.length))
             .then(() => {
+                GaragePage.isWin = false;
                 cars$?.value?.forEach(race => race.startRace());
 
                 return delay(() => Boolean(activeRace$.value.length === cars$.value?.length));
@@ -74,8 +80,10 @@ class ControlBlok extends Component {
         });
     }
 
-    private raceReset(): void {
+    private raceStartReset(): void {
         const isRaceStart = isRaceStart$.value;
+
+        finishList$.publish([]);
 
         if (!isRaceStart) this.startRace();
         if (isRaceStart) this.resetRace();

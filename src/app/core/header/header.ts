@@ -3,6 +3,7 @@ import Component from '@utils/ui-component-template';
 import createElement from '@utils/create-element';
 import style from './header.module.scss';
 import { redirectTo } from '../../../router/utils/redirect';
+import PopUp from '../popup/popup';
 
 @CustomSelector('Header')
 class Header extends Component {
@@ -17,7 +18,8 @@ class Header extends Component {
         const { garagePageLink, winnerPageLink } = this.elements;
 
         garagePageLink.onclick = () => redirectTo('garage');
-        winnerPageLink.onclick = () => redirectTo('winners');
+        // winnerPageLink.onclick = () => redirectTo('winners');
+        winnerPageLink.onclick = () => PopUp.show('dsfa');
 
         this.appendElements();
     }

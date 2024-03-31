@@ -6,7 +6,7 @@ class App {
     root = document.body;
 
     async run() {
-        const routOutput = createElement({ tag: 'div', style: 'router' });
+        const routOutput = createElement({ tag: 'main', style: 'router' });
 
         this.root.append(new Header().getElement(), routOutput);
 

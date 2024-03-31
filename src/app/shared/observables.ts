@@ -1,3 +1,4 @@
+import { CurrentRaceFinish } from '@interfaces/current-race-finish';
 import { PageOptions } from '@interfaces/garage-page-options.interface';
 import type Race from '@pages/garage/race-list/race/race';
 import Observable from '@utils/observer-template';
@@ -7,7 +8,4 @@ export const garagePageOptions$ = new Observable<PageOptions>({ totalCars: 0, pa
 export const selectedCar$ = new Observable<Race | null>(null);
 export const activeRace$ = new Observable<Race[]>([]);
 export const isRaceStart$ = new Observable<boolean>(false);
-
-activeRace$.subscribe(data => {
-    console.log(data);
-});
+export const finishList$ = new Observable<CurrentRaceFinish[]>([]);

@@ -1,6 +1,7 @@
 import { Car } from '@interfaces/car.interface';
 import { cars$, garagePageOptions$ } from '@shared/observables';
 import { getArrRaceCars } from './utils/get-arr-race-cars';
+import { disabledBtns } from './utils/disabled-btns';
 
 interface CallbackOption {
     fulfillCallback?: (data?: unknown) => void;
@@ -24,6 +25,8 @@ export class ApiService {
                 const totalCars = Number(response.headers.get('X-Total-Count'));
                 garagePageOptions$.publish({ totalCars, page });
 
+                disabledBtns(false);
+
                 return response.json();
             })
             .then((cars: Car[]) => {
@@ -31,6 +34,7 @@ export class ApiService {
             })
             .catch(err => {
                 cars$.publish(null);
+                disabledBtns(false);
                 garagePageOptions$.publish({ totalCars: 0, page: 1 });
 
                 console.log(err);

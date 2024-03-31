@@ -8,9 +8,11 @@ import {
     garagePageOptions$,
     isRaceStart$ as allRaceStart$,
     selectedCar$,
+    finishList$,
 } from '@shared/observables';
 import { Car } from '@interfaces/car.interface';
 import { ApiService } from '@shared/api-service';
+import { disabledBtns } from '@shared/utils/disabled-btns';
 import style from './race.module.scss';
 import { isRaceParams } from '../../../../type-guards/is-RaceParams';
 
@@ -22,9 +24,9 @@ class Race extends Component {
     private contentWrapObserver = new MutationObserver(() => this.controller.abort());
 
     isRaceStarted = false;
+    transitionDuration = 0;
 
     private startTime = 0;
-    private transitionDuration = 0;
 
     constructor(public car: Car) {
         super(style);
@@ -93,6 +95,7 @@ class Race extends Component {
             await ApiService.startedStoppedEngine(this.car.id, 'started', {
                 fulfillCallback: (data: unknown) => {
                     if (isRaceParams(data)) {
+                        this.isRaceStarted = true;
                         this.startTime = Date.now();
                         this.transitionDuration = data.distance / data.velocity;
 
@@ -114,7 +117,14 @@ class Race extends Component {
             ApiService.driveMode(this.car.id, this.controller.signal, {
                 fulfillCallback: () => {
                     if (this.isRaceStarted) {
-                        console.log(this.car.id, 'win');
+                        finishList$.publish([
+                            ...finishList$.value,
+                            {
+                                race: this,
+                                status: 'win',
+                            },
+                        ]);
+
                         this.isRaceStarted = false;
                     }
                 },
@@ -189,6 +199,14 @@ class Race extends Component {
         car.style.cssText = `left: ${carPositionLeft}px`;
         car.style.transform = 'rotate(163deg)';
 
+        finishList$.publish([
+            ...finishList$.value,
+            {
+                race: this,
+                status: 'lost',
+            },
+        ]);
+
         this.isRaceStarted = false;
     }
 
@@ -221,6 +239,7 @@ class Race extends Component {
         ApiService.updateCar(updatedCar, {
             fulfillCallback: () => {
                 this.car = updatedCar;
+                disabledBtns(false);
                 this.render();
             },
         });

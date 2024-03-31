@@ -1,9 +1,10 @@
 import CustomSelector from '@utils/set-selector-name';
 import Component from '@utils/ui-component-template';
 import createElement from '@utils/create-element';
-import { activeRace$, selectedCar$ } from '@shared/observables';
+import { activeRace$, isRaceStart$, selectedCar$ } from '@shared/observables';
 import type Race from '@pages/garage/race-list/race/race';
 import { ApiService } from '@shared/api-service';
+import { disabledBtns } from '@shared/utils/disabled-btns';
 import style from './create-update-car-block.module.scss';
 
 @CustomSelector('Create-update-car')
@@ -69,6 +70,8 @@ class CreateUpdateCarBlock extends Component {
             }
 
             inputText.value = '';
+
+            disabledBtns(true);
         };
     }
 
@@ -80,14 +83,21 @@ class CreateUpdateCarBlock extends Component {
         inputText.disabled = hasActiveRace;
     };
 
+    private isRaceStartSubscribe = (boolean: boolean) => {
+        const { confirmBtn } = this.elements;
+        if (boolean) confirmBtn.disabled = true;
+    };
+
     protected connectedCallback(): void {
         selectedCar$.subscribe(this.selectedCarSubscribe);
         activeRace$.subscribe(this.activeRaceStartSubscribe);
+        isRaceStart$.subscribe(this.isRaceStartSubscribe);
     }
 
     protected disconnectedCallback(): void {
         selectedCar$.unsubscribe(this.selectedCarSubscribe);
         activeRace$.unsubscribe(this.activeRaceStartSubscribe);
+        isRaceStart$.unsubscribe(this.isRaceStartSubscribe);
     }
 
     protected childrenElements() {
