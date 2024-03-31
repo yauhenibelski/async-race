@@ -1,7 +1,7 @@
 import CustomSelector from '@utils/set-selector-name';
 import Component from '@utils/ui-component-template';
 import createElement from '@utils/create-element';
-import { selectedCar$ } from '@shared/observables';
+import { activeRace$, selectedCar$ } from '@shared/observables';
 import type Race from '@pages/garage/race-list/race/race';
 import { ApiService } from '@shared/api-service';
 import style from './create-update-car-block.module.scss';
@@ -22,7 +22,6 @@ class CreateUpdateCarBlock extends Component {
         inputText.placeholder = 'Create car';
         inputColor.type = 'color';
 
-        this.addInputTextEvent();
         this.addConfirmBtnEvent();
 
         this.appendElements();
@@ -44,25 +43,8 @@ class CreateUpdateCarBlock extends Component {
 
         if (!race) {
             confirmBtn.innerText = 'Create car';
-            // inputText.value = '';
-            // inputColor.value = '#7A7A7A';
         }
     };
-
-    private addInputTextEvent() {
-        const { inputText, confirmBtn } = this.elements;
-
-        inputText.oninput = () => {
-            if (!inputText.value && !confirmBtn.disabled) {
-                confirmBtn.disabled = true;
-                return;
-            }
-
-            if (inputText.value && confirmBtn.disabled) {
-                confirmBtn.disabled = false;
-            }
-        };
-    }
 
     private addConfirmBtnEvent() {
         const { inputColor, inputText, confirmBtn } = this.elements;
@@ -72,7 +54,7 @@ class CreateUpdateCarBlock extends Component {
 
             if (selectedCar) {
                 selectedCar.updateCar({
-                    name: inputText.value,
+                    name: inputText.value ? inputText.value : 'Запорожец',
                     color: inputColor.value,
                 });
 
@@ -81,22 +63,31 @@ class CreateUpdateCarBlock extends Component {
 
             if (!selectedCar) {
                 ApiService.createCar({
-                    name: inputText.value,
+                    name: inputText.value ? inputText.value : 'Запорожец',
                     color: inputColor.value,
                 });
             }
 
-            confirmBtn.disabled = true;
             inputText.value = '';
         };
     }
 
+    private activeRaceStartSubscribe = (races: Race[]) => {
+        const { confirmBtn, inputText } = this.elements;
+        const hasActiveRace = Boolean(races.length);
+
+        confirmBtn.disabled = hasActiveRace;
+        inputText.disabled = hasActiveRace;
+    };
+
     protected connectedCallback(): void {
         selectedCar$.subscribe(this.selectedCarSubscribe);
+        activeRace$.subscribe(this.activeRaceStartSubscribe);
     }
 
     protected disconnectedCallback(): void {
         selectedCar$.unsubscribe(this.selectedCarSubscribe);
+        activeRace$.unsubscribe(this.activeRaceStartSubscribe);
     }
 
     protected childrenElements() {

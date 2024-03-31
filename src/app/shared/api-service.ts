@@ -66,20 +66,8 @@ export class ApiService {
         );
 
         Promise.all(cars)
-            .then(() => fetch(garageUrl))
-            .then(response => response.body?.getReader())
-            .then(reader => {
-                while (true) {
-                    let load = true;
-
-                    reader?.read().then(({ done }) => {
-                        load = done;
-                    });
-
-                    if (load) break;
-                }
-                this.getCars(garagePageOptions$.value.page);
-            });
+            .then(() => this.promiseGarageDelay())
+            .then(() => this.getCars(garagePageOptions$.value.page));
     };
 
     static readonly removeCar = (id: number, option?: CallbackOption) => {
@@ -148,6 +136,8 @@ export class ApiService {
             .catch(err => {
                 if (option && option.rejectCallback) {
                     option.rejectCallback();
+                } else {
+                    this.getCars(garagePageOptions$.value.page);
                 }
 
                 console.log(err);
@@ -172,6 +162,21 @@ export class ApiService {
             .catch(() => {
                 if (option && option.rejectCallback) {
                     option.rejectCallback();
+                }
+            });
+
+    static readonly promiseGarageDelay = (): Promise<void> =>
+        fetch(`${this.path}garage`)
+            .then(response => response.body?.getReader())
+            .then(reader => {
+                while (true) {
+                    let load = true;
+
+                    reader?.read().then(({ done }) => {
+                        load = done;
+                    });
+
+                    if (load) break;
                 }
             });
 }
