@@ -24,6 +24,24 @@ class WinnersPage extends Component {
     }
 
     protected createComponent(): void {
+        const { bestTimeBtn, winsBtn } = this.elements;
+
+        bestTimeBtn.onclick = () => {
+            winnersSortOptions$.publish({
+                sort: 'time',
+                order: winnersSortOptions$.value.order === 'ASC' ? 'DESC' : 'ASC',
+            });
+            ApiService.getSortWinners(winnerPageOptions$.value.page, winnersSortOptions$.value);
+        };
+
+        winsBtn.onclick = () => {
+            winnersSortOptions$.publish({
+                sort: 'wins',
+                order: winnersSortOptions$.value.order === 'ASC' ? 'DESC' : 'ASC',
+            });
+            ApiService.getSortWinners(winnerPageOptions$.value.page, winnersSortOptions$.value);
+        };
+
         this.appendElements();
     }
 
@@ -45,7 +63,7 @@ class WinnersPage extends Component {
         winners$.unsubscribe(this.winnerSubscribe);
     }
 
-    private q = (pageNumber: number) => {
+    private paginationCallback = (pageNumber: number) => {
         ApiService.getSortWinners(pageNumber, winnersSortOptions$.value);
     };
 
@@ -56,10 +74,10 @@ class WinnersPage extends Component {
             numberBtn: createElement({ tag: 'button', text: 'Number' }),
             nameBtn: createElement({ tag: 'button', text: 'Name' }),
             carBtn: createElement({ tag: 'button', text: 'Car' }),
-            winsBtn: createElement({ tag: 'button', text: 'Wins' }),
-            bestTimeBtn: createElement({ tag: 'button', text: 'Best time' }),
+            winsBtn: createElement({ tag: 'button', text: 'Wins', style: style.win }),
+            bestTimeBtn: createElement({ tag: 'button', text: 'Best time', style: style.time }),
             note: createElement({ tag: 'h2', text: 'No cars in the garage' }),
-            pagination: new Pagination(winnerPageOptions$, ApiService.winnersPageLimit, this.q),
+            pagination: new Pagination(winnerPageOptions$, ApiService.winnersPageLimit, this.paginationCallback),
         };
     }
 
@@ -81,7 +99,7 @@ class WinnersPage extends Component {
     }
 
     private appendWinnersElements(): void {
-        const { table, pagination } = this.elements;
+        const { table, pagination, btnsWrap } = this.elements;
         const winners = winners$.value;
 
         if (winners?.length) {
@@ -91,6 +109,8 @@ class WinnersPage extends Component {
                 .then(carsData => carsData.map((car, i) => car && { ...car, ...winners[i] }))
                 .then(carsWinnersData => carsWinnersData.filter(data => data))
                 .then(carsProps => {
+                    table.append(btnsWrap);
+
                     carsProps.forEach((car, i) => {
                         const tr = createElement({ tag: 'tr' });
 
@@ -115,7 +135,7 @@ class WinnersPage extends Component {
     }
 
     protected appendBtns(): void {
-        const { btnsWrap, numberBtn, nameBtn, carBtn, winsBtn, bestTimeBtn, table } = this.elements;
+        const { btnsWrap, numberBtn, nameBtn, carBtn, winsBtn, bestTimeBtn } = this.elements;
         const btns = [numberBtn, nameBtn, carBtn, winsBtn, bestTimeBtn];
 
         btnsWrap.append(
@@ -126,7 +146,6 @@ class WinnersPage extends Component {
                 return td;
             }),
         );
-        table.append(btnsWrap);
     }
 }
 

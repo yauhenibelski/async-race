@@ -28,5 +28,11 @@
         background: transparent;
         padding: 5px;
         border: none;
+        cursor: default;
+    }
+
+    .win,
+    .time {
+        cursor: pointer;
     }
 }
