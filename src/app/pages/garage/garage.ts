@@ -27,7 +27,7 @@ class GaragePage extends Component {
         ApiService.getCars();
         this.createComponent();
 
-        finishList$.subscribe(this.addWinnerSubscribe);
+        finishList$.subscribe(this.finishListSubscribe);
     }
 
     protected createComponent(): void {
@@ -47,8 +47,19 @@ class GaragePage extends Component {
     private finishListSubscribe = (finishList: FinishList[]) => {
         if (hasWinner(finishList, GaragePage.isWin)) {
             const race = getWinner(finishList)!;
-            console.log(2);
             const timeSeconds = (race.transitionDuration / 1000).toFixed(2);
+
+            (async () => {
+                const winner = await ApiService.getWinner(race.car.id);
+
+                if (isWinner(winner)) {
+                    ApiService.updateWinner(race.car, Number(timeSeconds), winner);
+                }
+
+                if (!isWinner(winner)) {
+                    ApiService.createWinner(race.car, Number(timeSeconds));
+                }
+            })();
 
             PopUp.show(`${race.car.name} went first [${timeSeconds}s]`);
 
@@ -56,31 +67,14 @@ class GaragePage extends Component {
         }
     };
 
-    private addWinnerSubscribe = (finishList: FinishList[]) => {
-        if (hasWinner(finishList, GaragePage.isWin)) {
-            const race = getWinner(finishList)!;
-            const timeSeconds = (race.transitionDuration / 1000).toFixed(2);
-
-            (async () => {
-                const winner = await ApiService.getWinner(race.car.id);
-
-                if (!isWinner(winner)) {
-                    ApiService.createWinner(race.car, Number(timeSeconds));
-                }
-            })();
-        }
-    };
-
     protected connectedCallback(): void {
         garagePageOptions$.subscribe(this.pageOptionsSubscribe);
         activeRace$.subscribe(this.activeRaceSubscribe);
-        finishList$.subscribe(this.finishListSubscribe);
     }
 
     protected disconnectedCallback(): void {
         garagePageOptions$.unsubscribe(this.pageOptionsSubscribe);
         activeRace$.unsubscribe(this.activeRaceSubscribe);
-        finishList$.unsubscribe(this.finishListSubscribe);
     }
 
     protected childrenElements() {

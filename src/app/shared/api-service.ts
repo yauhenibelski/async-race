@@ -229,8 +229,6 @@ export class ApiService {
         fetch(`${this.path}winners/${id}`).then(response => response.json());
 
     static readonly createWinner = (car: Car, time: Winner['time'], option?: CallbackOption): void => {
-        console.log(car, time, 'create');
-
         fetch(`${this.path}winners`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -259,26 +257,37 @@ export class ApiService {
             });
     };
 
-    // static readonly updateWinner = (car: Car, option?: CallbackOption): void => {
-    //     fetch(`${this.path}garage/${car.id}`, {
-    //         method: 'PUT',
-    //         headers: { 'Content-Type': 'application/json' },
-    //         body: JSON.stringify(car),
-    //     })
-    //         .then(response => {
-    //             if (response.ok && option && option.fulfillCallback) {
-    //                 option.fulfillCallback();
-    //             }
+    static readonly updateWinner = (
+        car: Car,
+        time: Winner['time'],
+        oldValue: Winner,
+        option?: CallbackOption,
+    ): void => {
+        fetch(`${this.path}winners/${car.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                wins: oldValue.wins + 1,
+                time: oldValue.time > time ? oldValue.time : time,
+            }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`createWinner response status ${response.status}`);
+                }
 
-    //             if (!response.ok) {
-    //                 throw new Error(`updateCar response status ${response.status}`);
-    //             }
-    //         })
-    //         .catch(err => {
-    //             if (option && option.rejectCallback) {
-    //                 option.rejectCallback();
-    //             }
+                if (response.ok && option && option.fulfillCallback) {
+                    option.fulfillCallback();
+                }
 
-    //             console.log(err);
-    //         });
+                this.getSortWinners(winnerPageOptions$.value.page, winnersSortOptions$.value);
+            })
+            .catch(err => {
+                if (option && option.rejectCallback) {
+                    option.rejectCallback();
+                }
+
+                console.log(err);
+            });
+    };
 }
