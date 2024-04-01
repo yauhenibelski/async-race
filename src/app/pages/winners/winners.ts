@@ -1,7 +1,7 @@
 import Component from '@utils/ui-component-template';
 import CustomSelector from '@utils/set-selector-name';
 import PageInfo from '@shared/page-information/page-information';
-import { winnerPageOptions$, winners$ } from '@shared/observables';
+import { winnerPageOptions$, winners$, winnersSortOptions$ } from '@shared/observables';
 import { PageOptions } from '@interfaces/garage-page-options.interface';
 import createElement from '@utils/create-element';
 import { ApiService } from '@shared/api-service';
@@ -18,8 +18,7 @@ class WinnersPage extends Component {
     constructor() {
         super(style);
 
-        ApiService.getSortWinners(1, 'wins', 'ASC');
-
+        ApiService.getSortWinners(winnerPageOptions$.value.page, winnersSortOptions$.value);
         this.createComponent();
     }
 
@@ -49,7 +48,9 @@ class WinnersPage extends Component {
         return {
             table: createElement({ tag: 'table' }),
             btnsWrap: createElement({ tag: 'tr', style: style['btns-wrap'] }),
-            carNameBtn: createElement({ tag: 'button', text: 'Car name' }),
+            numberBtn: createElement({ tag: 'button', text: 'Number' }),
+            nameBtn: createElement({ tag: 'button', text: 'Name' }),
+            carBtn: createElement({ tag: 'button', text: 'Car' }),
             winsBtn: createElement({ tag: 'button', text: 'Wins' }),
             bestTimeBtn: createElement({ tag: 'button', text: 'Best time' }),
             note: createElement({ tag: 'h2', text: 'No cars in the garage' }),
@@ -87,10 +88,11 @@ class WinnersPage extends Component {
                 .then(carsProps => {
                     table.append(btnsWrap);
 
-                    carsProps.forEach(car => {
+                    carsProps.forEach((car, i) => {
                         const tr = createElement({ tag: 'tr' });
 
                         [
+                            createElement({ tag: 'span', text: `${i + 1}` }),
                             createElement({ tag: 'span', text: car!.name }),
                             getColorCar(car!.color),
                             createElement({ tag: 'span', text: `${car!.wins}` }),
@@ -109,14 +111,12 @@ class WinnersPage extends Component {
     }
 
     protected appendBtns(): void {
-        const { btnsWrap, carNameBtn, winsBtn, bestTimeBtn } = this.elements;
-        const btns = [carNameBtn, winsBtn, bestTimeBtn];
+        const { btnsWrap, numberBtn, nameBtn, carBtn, winsBtn, bestTimeBtn } = this.elements;
+        const btns = [numberBtn, nameBtn, carBtn, winsBtn, bestTimeBtn];
 
         btnsWrap.append(
-            ...btns.map((btn, i) => {
+            ...btns.map(btn => {
                 const td = createElement({ tag: 'td' });
-
-                if (!i) td.setAttribute('colspan', '2');
 
                 td.append(btn);
                 return td;

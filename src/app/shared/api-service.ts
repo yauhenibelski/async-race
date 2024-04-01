@@ -1,6 +1,7 @@
 import { Car } from '@interfaces/car.interface';
-import { cars$, garagePageOptions$, winnerPageOptions$, winners$ } from '@shared/observables';
+import { cars$, garagePageOptions$, winnerPageOptions$, winners$, winnersSortOptions$ } from '@shared/observables';
 import { Winner } from '@interfaces/winner.interface';
+import { WinnersSortOptions } from '@interfaces/winners-sort-options.interface';
 import { getArrRaceCars } from './utils/get-arr-race-cars';
 import { disabledBtns } from './utils/disabled-btns';
 import { isWinner } from '../type-guards/is-winner';
@@ -192,14 +193,12 @@ export class ApiService {
                 }
             });
 
-    static readonly getSortWinners = (
-        pageNum: number,
-        sort: 'id' | 'wins' | 'time' = 'id',
-        order: 'ASC' | 'DESC' = 'ASC',
-    ): void => {
+    static readonly getSortWinners = (pageNum: number, sortOptions: WinnersSortOptions): void => {
         const page = pageNum || 1;
 
-        fetch(`${this.path}winners/?_page=${page}&_limit=${this.winnersPageLimit}&_sort=${sort}&_order=${order}`)
+        fetch(
+            `${this.path}winners/?_page=${page}&_limit=${this.winnersPageLimit}&_sort=${sortOptions.sort}&_order=${sortOptions.order}`,
+        )
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`getWinners response status ${response.status}`);
@@ -213,6 +212,9 @@ export class ApiService {
             .then((winners: Winner[]) => {
                 if (winners.every(winner => isWinner(winner))) {
                     winners$.publish(winners);
+                } else {
+                    winners$.publish(null);
+                    winnerPageOptions$.publish({ totalCars: 0, page: 1 });
                 }
             })
             .catch(err => {
@@ -222,27 +224,61 @@ export class ApiService {
                 console.log(err);
             });
     };
-    static readonly createWinner = (): void => {
-        fetch(`${this.path}winners`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+
+    static readonly getWinner = (id: number): Promise<unknown> =>
+        fetch(`${this.path}winners/${id}`).then(response => response.json());
+
+    static readonly createWinner = (car: Car, time: Winner['time'], option?: CallbackOption): void => {
+        console.log(car, time, 'create');
+
+        fetch(`${this.path}winners`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: car.id,
+                wins: 1,
+                time,
+            }),
+        })
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`createWinner response status ${response.status}`);
                 }
 
-                return response.json();
-            })
-            .then((winners: Winner[]) => {
-                if (winners.every(winner => isWinner(winner))) {
-                    const winnersArr = winners;
-
-                    winners$.publish(winnersArr);
+                if (response.ok && option && option.fulfillCallback) {
+                    option.fulfillCallback();
                 }
+
+                this.getSortWinners(winnerPageOptions$.value.page, winnersSortOptions$.value);
             })
             .catch(err => {
-                winners$.publish(null);
-                winnerPageOptions$.publish({ totalCars: 0, page: 1 });
-
+                if (option && option.rejectCallback) {
+                    option.rejectCallback();
+                }
                 console.log(err);
             });
     };
+
+    // static readonly updateWinner = (car: Car, option?: CallbackOption): void => {
+    //     fetch(`${this.path}garage/${car.id}`, {
+    //         method: 'PUT',
+    //         headers: { 'Content-Type': 'application/json' },
+    //         body: JSON.stringify(car),
+    //     })
+    //         .then(response => {
+    //             if (response.ok && option && option.fulfillCallback) {
+    //                 option.fulfillCallback();
+    //             }
+
+    //             if (!response.ok) {
+    //                 throw new Error(`updateCar response status ${response.status}`);
+    //             }
+    //         })
+    //         .catch(err => {
+    //             if (option && option.rejectCallback) {
+    //                 option.rejectCallback();
+    //             }
+
+    //             console.log(err);
+    //         });
 }

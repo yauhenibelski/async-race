@@ -2,14 +2,17 @@ import CustomSelector from '@utils/set-selector-name';
 import Component from '@utils/ui-component-template';
 import { ApiService } from '@shared/api-service';
 import PageInfo from '@shared/page-information/page-information';
-import { activeRace$, finishList$, garagePageOptions$, isRaceStart$ } from '@shared/observables';
+import { activeRace$, finishList$, garagePageOptions$ } from '@shared/observables';
 import { PageOptions } from '@interfaces/garage-page-options.interface';
 import Pagination from '@shared/pagination/pagination';
 import { CurrentRaceFinish as FinishList } from '@interfaces/current-race-finish';
+import { hasWinner } from '@shared/utils/has-winner';
+import { getWinner } from '@shared/utils/get-winner';
 import RaceList from './race-list/race-list';
 import ControlBlok from './control-block/control-block';
 import style from './garage.module.scss';
 import PopUp from '../../core/popup/popup';
+import { isWinner } from '../../type-guards/is-winner';
 
 @CustomSelector('Garage-page')
 class GaragePage extends Component {
@@ -23,6 +26,8 @@ class GaragePage extends Component {
 
         ApiService.getCars();
         this.createComponent();
+
+        finishList$.subscribe(this.addWinnerSubscribe);
     }
 
     protected createComponent(): void {
@@ -40,16 +45,29 @@ class GaragePage extends Component {
     };
 
     private finishListSubscribe = (finishList: FinishList[]) => {
-        if (isRaceStart$.value && !GaragePage.isWin) {
-            const winner = finishList.filter(race => race.status === 'win')[0];
+        if (hasWinner(finishList, GaragePage.isWin)) {
+            const race = getWinner(finishList)!;
+            console.log(2);
+            const timeSeconds = (race.transitionDuration / 1000).toFixed(2);
 
-            if (winner) {
-                PopUp.show(
-                    `${winner.race.car.name} went first [${(winner.race.transitionDuration / 1000).toFixed(2)}s]`,
-                );
-                console.log();
-                GaragePage.isWin = true;
-            }
+            PopUp.show(`${race.car.name} went first [${timeSeconds}s]`);
+
+            GaragePage.isWin = true;
+        }
+    };
+
+    private addWinnerSubscribe = (finishList: FinishList[]) => {
+        if (hasWinner(finishList, GaragePage.isWin)) {
+            const race = getWinner(finishList)!;
+            const timeSeconds = (race.transitionDuration / 1000).toFixed(2);
+
+            (async () => {
+                const winner = await ApiService.getWinner(race.car.id);
+
+                if (!isWinner(winner)) {
+                    ApiService.createWinner(race.car, Number(timeSeconds));
+                }
+            })();
         }
     };
 
