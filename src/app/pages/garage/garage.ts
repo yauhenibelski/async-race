@@ -47,6 +47,7 @@ class GaragePage extends Component {
                 PopUp.show(
                     `${winner.race.car.name} went first [${(winner.race.transitionDuration / 1000).toFixed(2)}s]`,
                 );
+                console.log();
                 GaragePage.isWin = true;
             }
         }

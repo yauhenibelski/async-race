@@ -1,7 +1,10 @@
 import { Car } from '@interfaces/car.interface';
-import { cars$, garagePageOptions$ } from '@shared/observables';
+import { cars$, garagePageOptions$, winnerPageOptions$, winners$ } from '@shared/observables';
+import { Winner } from '@interfaces/winner.interface';
 import { getArrRaceCars } from './utils/get-arr-race-cars';
 import { disabledBtns } from './utils/disabled-btns';
+import { isWinner } from '../type-guards/is-winner';
+import { isCar } from '../type-guards/is-car';
 
 interface CallbackOption {
     fulfillCallback?: (data?: unknown) => void;
@@ -40,6 +43,11 @@ export class ApiService {
                 console.log(err);
             });
     };
+
+    static readonly getCar = (id: number): Promise<Car | null> =>
+        fetch(`${this.path}garage/${id}`)
+            .then(response => response.json())
+            .then(data => (isCar(data) ? data : null));
 
     static readonly createCar = (car: Omit<Car, 'id'> | Array<Omit<Car, 'id'>>, option?: CallbackOption): void => {
         const cars = Array.isArray(car) ? car : [car];
@@ -183,4 +191,58 @@ export class ApiService {
                     if (load) break;
                 }
             });
+
+    static readonly getSortWinners = (
+        pageNum: number,
+        sort: 'id' | 'wins' | 'time' = 'id',
+        order: 'ASC' | 'DESC' = 'ASC',
+    ): void => {
+        const page = pageNum || 1;
+
+        fetch(`${this.path}winners/?_page=${page}&_limit=${this.winnersPageLimit}&_sort=${sort}&_order=${order}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`getWinners response status ${response.status}`);
+                }
+
+                const totalCars = Number(response.headers.get('X-Total-Count'));
+                winnerPageOptions$.publish({ totalCars, page });
+
+                return response.json();
+            })
+            .then((winners: Winner[]) => {
+                if (winners.every(winner => isWinner(winner))) {
+                    winners$.publish(winners);
+                }
+            })
+            .catch(err => {
+                winners$.publish(null);
+                winnerPageOptions$.publish({ totalCars: 0, page: 1 });
+
+                console.log(err);
+            });
+    };
+    static readonly createWinner = (): void => {
+        fetch(`${this.path}winners`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`createWinner response status ${response.status}`);
+                }
+
+                return response.json();
+            })
+            .then((winners: Winner[]) => {
+                if (winners.every(winner => isWinner(winner))) {
+                    const winnersArr = winners;
+
+                    winners$.publish(winnersArr);
+                }
+            })
+            .catch(err => {
+                winners$.publish(null);
+                winnerPageOptions$.publish({ totalCars: 0, page: 1 });
+
+                console.log(err);
+            });
+    };
 }
