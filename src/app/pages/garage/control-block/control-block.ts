@@ -49,6 +49,7 @@ class ControlBlok extends Component {
         raceResetBtn.innerText = 'Reset';
 
         isRaceStart$.publish(true);
+        disabledBtns(true);
 
         if (activeRace$.value.length) {
             activeRace$?.value?.forEach(race => race.resetRace());

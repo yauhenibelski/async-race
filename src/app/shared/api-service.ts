@@ -95,6 +95,7 @@ export class ApiService {
                 }
 
                 this.getCars(garagePageOptions$.value.page);
+                this.removeWinner(id);
             })
             .catch(err => {
                 if (option && option.rejectCallback) {
@@ -268,7 +269,7 @@ export class ApiService {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 wins: oldValue.wins + 1,
-                time: oldValue.time > time ? oldValue.time : time,
+                time: oldValue.time < time ? oldValue.time : time,
             }),
         })
             .then(response => {
@@ -278,6 +279,28 @@ export class ApiService {
 
                 if (response.ok && option && option.fulfillCallback) {
                     option.fulfillCallback();
+                }
+
+                this.getSortWinners(winnerPageOptions$.value.page, winnersSortOptions$.value);
+            })
+            .catch(err => {
+                if (option && option.rejectCallback) {
+                    option.rejectCallback();
+                }
+
+                console.log(err);
+            });
+    };
+
+    static readonly removeWinner = (id: number, option?: CallbackOption) => {
+        fetch(`${this.path}winners/${id}`, { method: 'DELETE' })
+            .then(response => {
+                if (response.ok && option && option.fulfillCallback) {
+                    option.fulfillCallback();
+                }
+
+                if (!response.ok) {
+                    throw new Error(`removeWinners response status ${response.status}`);
                 }
 
                 this.getSortWinners(winnerPageOptions$.value.page, winnersSortOptions$.value);

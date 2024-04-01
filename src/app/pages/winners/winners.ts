@@ -76,7 +76,7 @@ class WinnersPage extends Component {
             carBtn: createElement({ tag: 'button', text: 'Car' }),
             winsBtn: createElement({ tag: 'button', text: 'Wins', style: style.win }),
             bestTimeBtn: createElement({ tag: 'button', text: 'Best time', style: style.time }),
-            note: createElement({ tag: 'h2', text: 'No cars in the garage' }),
+            note: createElement({ tag: 'h2', text: 'No winners' }),
             pagination: new Pagination(winnerPageOptions$, ApiService.winnersPageLimit, this.paginationCallback),
         };
     }
