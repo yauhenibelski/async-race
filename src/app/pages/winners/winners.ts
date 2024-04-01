@@ -6,6 +6,7 @@ import { PageOptions } from '@interfaces/garage-page-options.interface';
 import createElement from '@utils/create-element';
 import { ApiService } from '@shared/api-service';
 import { getColorCar } from '@shared/utils/get-coloured-car-elem';
+import Pagination from '@shared/pagination/pagination';
 import style from './winners.module.scss';
 
 @CustomSelector('Winners-page')
@@ -44,6 +45,10 @@ class WinnersPage extends Component {
         winners$.unsubscribe(this.winnerSubscribe);
     }
 
+    private q = (pageNumber: number) => {
+        ApiService.getSortWinners(pageNumber, winnersSortOptions$.value);
+    };
+
     protected childrenElements() {
         return {
             table: createElement({ tag: 'table' }),
@@ -54,6 +59,7 @@ class WinnersPage extends Component {
             winsBtn: createElement({ tag: 'button', text: 'Wins' }),
             bestTimeBtn: createElement({ tag: 'button', text: 'Best time' }),
             note: createElement({ tag: 'h2', text: 'No cars in the garage' }),
+            pagination: new Pagination(winnerPageOptions$, ApiService.winnersPageLimit, this.q),
         };
     }
 
@@ -69,14 +75,13 @@ class WinnersPage extends Component {
         }
 
         this.appendBtns();
-
         this.appendWinnersElements();
 
         this.contentWrap.append(table);
     }
 
     private appendWinnersElements(): void {
-        const { table, btnsWrap } = this.elements;
+        const { table, pagination } = this.elements;
         const winners = winners$.value;
 
         if (winners?.length) {
@@ -86,8 +91,6 @@ class WinnersPage extends Component {
                 .then(carsData => carsData.map((car, i) => car && { ...car, ...winners[i] }))
                 .then(carsWinnersData => carsWinnersData.filter(data => data))
                 .then(carsProps => {
-                    table.append(btnsWrap);
-
                     carsProps.forEach((car, i) => {
                         const tr = createElement({ tag: 'tr' });
 
@@ -106,12 +109,13 @@ class WinnersPage extends Component {
 
                         table.append(tr);
                     });
+                    this.contentWrap.append(pagination);
                 });
         }
     }
 
     protected appendBtns(): void {
-        const { btnsWrap, numberBtn, nameBtn, carBtn, winsBtn, bestTimeBtn } = this.elements;
+        const { btnsWrap, numberBtn, nameBtn, carBtn, winsBtn, bestTimeBtn, table } = this.elements;
         const btns = [numberBtn, nameBtn, carBtn, winsBtn, bestTimeBtn];
 
         btnsWrap.append(
@@ -122,6 +126,7 @@ class WinnersPage extends Component {
                 return td;
             }),
         );
+        table.append(btnsWrap);
     }
 }
 

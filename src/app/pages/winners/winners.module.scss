@@ -3,9 +3,11 @@
 }
 .content-wrap {
     display: block;
+    min-height: 500px;
 
     td {
         padding: 5px;
+        min-width: 70px;
 
         div {
             position: static;
