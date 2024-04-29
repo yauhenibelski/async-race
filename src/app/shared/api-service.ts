@@ -179,20 +179,7 @@ export class ApiService {
                 }
             });
 
-    static readonly promiseGarageDelay = (): Promise<void> =>
-        fetch(`${this.path}garage`)
-            .then(response => response.body?.getReader())
-            .then(reader => {
-                while (true) {
-                    let load = true;
-
-                    reader?.read().then(({ done }) => {
-                        load = done;
-                    });
-
-                    if (load) break;
-                }
-            });
+    static readonly promiseGarageDelay = () => fetch(`${this.path}garage`).then(response => response.body?.getReader());
 
     static readonly getSortWinners = (pageNum: number, sortOptions: WinnersSortOptions): void => {
         const page = pageNum || 1;
