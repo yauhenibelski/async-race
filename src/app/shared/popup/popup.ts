@@ -2,37 +2,40 @@ import createElement from '@utils/create-element';
 import style from './popup.module.scss';
 
 export const popup = {
-    container: createElement({ tag: 'div', style: style.popup }),
+    contentWrap: createElement({ tag: 'div', style: style.popup }),
 
-    run(content: HTMLElement | string) {
+    show(content: HTMLElement | string): void {
         this.createPopup(content);
-        document.body.append(this.container);
+        document.body.append(this.contentWrap);
     },
 
-    remove() {
-        this.container.style.opacity = '0';
-        this.container.innerHTML = '';
+    close(): void {
+        this.contentWrap.style.opacity = '0';
+        this.contentWrap.innerHTML = '';
 
         document.body.style.overflow = '';
 
         setTimeout(() => {
-            this.container.remove();
+            this.contentWrap.remove();
         }, 200);
     },
 
-    createPopup(value: HTMLElement | string) {
-        this.container.style.opacity = '0';
+    createPopup(value: HTMLElement | string): void {
+        const currentContent = <HTMLElement | null>this.contentWrap.firstElementChild;
+        if (currentContent) currentContent.remove();
+
+        this.contentWrap.style.opacity = '0';
         document.body.style.overflow = 'hidden';
 
         const content = value instanceof HTMLElement ? value : createElement({ tag: 'h2', text: value });
 
-        this.container.append(content);
+        this.contentWrap.append(content);
         content.onclick = event => event.stopPropagation();
 
-        this.container.onclick = () => this.remove();
+        this.contentWrap.onclick = () => this.close();
 
         setTimeout(() => {
-            this.container.style.opacity = '1';
+            this.contentWrap.style.opacity = '1';
         }, 100);
     },
 };

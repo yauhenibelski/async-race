@@ -8,10 +8,10 @@ import Pagination from '@shared/pagination/pagination';
 import { CurrentRaceFinish as FinishList } from '@interfaces/current-race-finish';
 import { hasWinner } from '@shared/utils/has-winner';
 import { getWinner } from '@shared/utils/get-winner';
+import { popup } from '@shared/popup/popup';
 import RaceList from './race-list/race-list';
 import ControlBlok from './control-block/control-block';
 import style from './garage.module.scss';
-import PopUp from '../../core/popup/popup';
 import { isWinner } from '../../type-guards/is-winner';
 
 @CustomSelector('Garage-page')
@@ -61,8 +61,7 @@ class GaragePage extends Component {
                 }
             })();
 
-            PopUp.show(`${race.car.name} went first [${timeSeconds}s]`);
-
+            popup.show(`${race.car.name} went first [${timeSeconds}s]`);
             GaragePage.isWin = true;
         }
     };
