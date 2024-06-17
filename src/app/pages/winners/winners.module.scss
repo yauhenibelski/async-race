@@ -1,0 +1,38 @@
+.host {
+    display: block;
+}
+.content-wrap {
+    display: block;
+    min-height: 500px;
+
+    td {
+        padding: 5px;
+        min-width: 70px;
+
+        div {
+            position: static;
+            width: 50px;
+            height: auto;
+        }
+    }
+
+    tr {
+        text-align: center;
+    }
+}
+
+.btns-wrap {
+    background-color: #7198b1;
+
+    button {
+        background: transparent;
+        padding: 5px;
+        border: none;
+        cursor: default;
+    }
+
+    .win,
+    .time {
+        cursor: pointer;
+    }
+}
